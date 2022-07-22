@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 $excepted_directories = [ '.git', '.idea', 'vendor' ];
@@ -41,7 +40,8 @@ check_is_main_file_found( $plugin_main_file );
 try {
 	echo( 'Found plugin main file: ' . $plugin_main_file['filename'] . PHP_EOL . PHP_EOL);
 	echo( 'Starting obfuscating......' . PHP_EOL . PHP_EOL );
-	exec( "php yakpro-po/yakpro-po.php {$directory} -o output " );
+	exec( "php yakpro-po/yakpro-po.php {$directory} -o output 2>&1" );
+	echo dirname( __FILE__ ) . '/output/yakpro-po/obfuscated'.PHP_EOL;
 	$zip_path = create_zip( dirname( __FILE__ ) . '/output/yakpro-po/obfuscated', $directory_base_name, $plugin_main_file, $removed_items );
 	exec( 'rm -rf output/yakpro-po' );
 	echo PHP_EOL.'Successfully created zip file in: '. $zip_path . PHP_EOL.PHP_EOL;
@@ -88,6 +88,7 @@ function is_plugin_main_file( $comment ): bool {
 function create_zip( $directory, $parent_folder_name, $plugin_main_file, $exclude ): string {
 
 	$root_path = realpath( $directory );
+	echo $root_path;
 	$file_name = 'output/' . ( new DateTime() )->format( "Y-m-d-H-i-s" ) . '.zip';
 	$zip       = new ZipArchive();
 
