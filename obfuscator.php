@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 $excepted_directories = [ '.git', '.idea', 'vendor' ];
@@ -6,7 +7,7 @@ $removed_items        = [ '.git', '.idea', '.gitignore' ];
 $plugin_main_file     = [];
 
 
-echo( '----------- Wp-cloud sso - Plugins Obfuscator ***' . PHP_EOL . PHP_EOL );
+echo( PHP_EOL.'----------- Wp-cloud sso - Plugins Obfuscator -----------' . PHP_EOL . PHP_EOL );
 $directory           = $argv[1] ?? null;
 $directory_base_name = basename( $directory );
 
@@ -36,11 +37,18 @@ foreach ( $o_iter as $file ) {
 }
 
 check_is_main_file_found( $plugin_main_file );
-echo( 'Plugin main file founded: ' . $plugin_main_file['filename'] . PHP_EOL );
-echo( 'Starting obfuscating......' . PHP_EOL . PHP_EOL );
-exec( "php yakpro-po/yakpro-po.php {$directory} -o output" );
-create_zip( dirname( __FILE__ ) . '/output/yakpro-po/obfuscated', $directory_base_name, $plugin_main_file, $removed_items );
-exec( 'rm -rf output/yakpro-po' );
+
+try {
+	echo( 'Found plugin main file: ' . $plugin_main_file['filename'] . PHP_EOL . PHP_EOL);
+	echo( 'Starting obfuscating......' . PHP_EOL . PHP_EOL );
+	exec( "php yakpro-po/yakpro-po.php {$directory} -o output " );
+	$zip_path = create_zip( dirname( __FILE__ ) . '/output/yakpro-po/obfuscated', $directory_base_name, $plugin_main_file, $removed_items );
+	exec( 'rm -rf output/yakpro-po' );
+	echo PHP_EOL.'Successfully created zip file in: '. $zip_path . PHP_EOL.PHP_EOL;
+} catch (\Throwable $e) {
+	echo PHP_EOL."Error: ".$e.PHP_EOL;
+	exit();
+}
 
 
 function check_is_main_file_found( $file ) {
@@ -77,7 +85,7 @@ function is_plugin_main_file( $comment ): bool {
 	return strpos( strtolower( $comment ), 'plugin name' ) != false && strpos( strtolower( $comment ), 'version' ) != false;
 }
 
-function create_zip( $directory, $parent_folder_name, $plugin_main_file, $exclude ): void {
+function create_zip( $directory, $parent_folder_name, $plugin_main_file, $exclude ): string {
 
 	$root_path = realpath( $directory );
 	$file_name = 'output/' . ( new DateTime() )->format( "Y-m-d-H-i-s" ) . '.zip';
@@ -103,6 +111,7 @@ function create_zip( $directory, $parent_folder_name, $plugin_main_file, $exclud
 	}
 
 	$zip->close();
+	return realpath($file_name);
 }
 
 function generate_zip_iterator( $root_path, $exclude ): RecursiveIteratorIterator {

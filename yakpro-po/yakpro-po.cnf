@@ -80,7 +80,7 @@ $conf->shuffle_stmts_chunk_ratio        =   20;         // ratio > 1  100/ratio 
 $conf->strip_indentation                = false;         // all your obfuscated code will be generated on a single line
 $conf->abort_on_error                   = true;         // self explanatory
 $conf->confirm                          = true;         // rfu : will answer Y on confirmation request (reserved for future use ... or not...)
-$conf->silent                           = true;        // display or not Information level messages.
+$conf->silent                           = false;        // display or not Information level messages.
 
 
 $conf->source_directory                 = null;         // self explanatory
